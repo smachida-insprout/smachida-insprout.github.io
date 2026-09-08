@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=640, user-scalable=yes">
+<title>viewport probe</title>
+<style>
+body{margin:0;font:20px/1.4 sans-serif}
+h1{font-size:24px;margin:12px 8px}
+nav a{display:block;font-size:22px;padding:16px 12px;border-bottom:1px solid #ccc;text-decoration:none;color:#06c}
+nav a small{display:block;font-size:14px;color:#555;margin-top:4px}
+</style></head>
+<body>
+<h1>viewport probe</h1>
+<nav>
+<a href="p3_zoom.html">p3: width=640 + JS zoom<small>レイアウト幅が640未満なら html に zoom を当てる</small></a>
+<a href="p4_scale.html">p4: width=640 + initial-scale<small>min-width:640px にして meta に initial-scale を書き足す</small></a>
+<a href="p5_css_zoom.html">p5: width=640 + CSSのみ zoom<small>@media (max-width:639px) で zoom: calc(100vw / 640px)</small></a>
+</nav>
+</body></html>

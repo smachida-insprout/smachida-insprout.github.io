@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=640, user-scalable=yes">
+<title>p4 initial-scale</title>
+<style>html,body{min-width:640px}</style>
+<script>
+// 緩和策B: レイアウト幅が640未満なら meta に initial-scale を追加（DOM構築後）
+document.addEventListener('DOMContentLoaded', function () {
+  var w = document.documentElement.clientWidth;
+  if (w && w < 640) {
+    var s = (screen.width / 640).toFixed(4);
+    document.querySelector('meta[name="viewport"]').setAttribute('content',
+      'width=640, initial-scale=' + s + ', minimum-scale=' + s + ', user-scalable=yes');
+    setTimeout(function () { measure('meta書き換え後'); }, 300);
+  }
+});
+</script>
+<style>
+body{margin:0;font:20px/1.4 monospace}
+h1{font-size:24px;margin:8px}
+.box{padding:6px 8px;margin:4px 0;font-size:16px}
+.layout{width:640px;background:#ffd9d9}
+.auto{background:#cfe8ff}
+.vw{width:100vw;background:#d9f5d9}
+#ruler{display:flex;width:640px;background:#fff3c4;border-top:2px solid #c60;border-bottom:2px solid #c60}
+#ruler .cell{width:100px;box-sizing:border-box;border-right:2px solid #c60;font-size:14px;padding:2px}
+#ruler .cell.-last{width:40px;border-right:0;font-size:10px}
+.fixedbar{position:fixed;left:0;right:0;bottom:0;background:#333;color:#fff;padding:8px;font-size:16px}
+.mq::after{content:"media query (max-width:639px): 不一致"}
+@media (max-width:639px){.mq::after{content:"media query (max-width:639px): 一致"}}
+#re{font-size:20px;margin:8px;padding:8px 16px}
+#o{white-space:pre-wrap;word-break:break-all;margin:8px 8px 80px;padding:8px;background:#f4f4f4;font-size:15px}
+</style></head>
+<body>
+<h1>p4: width=640 + initial-scale</h1>
+<div class="box layout" id="bl">width:640px（.o-layout 相当）右端の文字→■</div>
+<div class="box auto" id="ba">width:auto（フッター相当、body min-width:640px）</div>
+<div class="box vw" id="bv">width:100vw</div>
+<div id="ruler"></div>
+<div class="box mq"></div>
+<button id="re">再計測</button>
+<pre id="o"></pre>
+<div class="fixedbar" id="fb">position:fixed bottom bar（left:0 right:0）</div>
+<script>
+function rw(id){var e=document.getElementById(id);return e?Math.round(e.getBoundingClientRect().width):'n/a';}
+function measure(label){
+  var vv=window.visualViewport,meta=document.querySelector('meta[name="viewport"]'),h=document.documentElement;
+  var lines=[
+    '['+label+'] '+new Date().toLocaleTimeString(),
+    'meta viewport     : '+(meta?meta.getAttribute('content'):'(なし)'),
+    'html.style.zoom   : '+(h.style.zoom||'(なし)')+' / computed: '+getComputedStyle(h).zoom,
+    'html.clientWidth  : '+h.clientWidth,
+    'window.innerWidth : '+window.innerWidth,
+    'screen.width      : '+screen.width,
+    'devicePixelRatio  : '+window.devicePixelRatio,
+    'visualViewport.w  : '+(vv?Math.round(vv.width):'n/a')+' / scale: '+(vv?vv.scale.toFixed(3):'n/a'),
+    'rect width  layout(640px): '+rw('bl')+'  auto: '+rw('ba')+'  100vw: '+rw('bv')+'  ruler: '+rw('ruler')+'  fixed: '+rw('fb'),
+    'body.scrollWidth  : '+document.body.scrollWidth,
+    'UA: '+navigator.userAgent
+  ];
+  var o=document.getElementById('o');o.textContent=lines.join('\n')+'\n\n'+o.textContent;
+}
+(function(){var r=document.getElementById('ruler');for(var i=0;i<6;i++){var c=document.createElement('div');c.className='cell';c.textContent=i*100;r.appendChild(c);}var l=document.createElement('div');l.className='cell -last';l.textContent='600-640';r.appendChild(l);})();
+measure('load');setTimeout(function(){measure('load+500ms');},500);
+document.getElementById('re').addEventListener('click',function(){measure('再計測');});
+</script>
+</body></html>
