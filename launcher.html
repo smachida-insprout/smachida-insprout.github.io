@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>URL launcher</title>
+<style>
+body{margin:0;padding:16px;font:16px/1.5 sans-serif}
+h1{font-size:20px;margin:0 0 8px}
+p{margin:0 0 12px;color:#555;font-size:14px}
+label{display:block;font-size:14px;color:#333;margin-bottom:4px}
+input{display:block;width:100%;box-sizing:border-box;font-size:16px;padding:10px;border:1px solid #999;border-radius:4px;margin-bottom:12px}
+button{font-size:18px;padding:12px 24px;border:0;border-radius:4px;background:#06c;color:#fff}
+a{display:block;margin-top:16px;font-size:16px;word-break:break-all}
+</style></head>
+<body>
+<h1>URLを開く</h1>
+<p>確認したいURLを貼り付けて「開く」を押すと、このブラウザ内でそのURLへ遷移します。Basic認証があるページはIDとパスワードも入力してください（URLに埋め込んで遷移します）。入力内容はこの端末内にだけ保存され、どこにも送信されません。</p>
+<label for="u">URL</label>
+<input id="u" type="url" placeholder="https://" autocapitalize="off" autocorrect="off" spellcheck="false">
+<label for="id">Basic認証 ID（不要なら空欄）</label>
+<input id="id" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off">
+<label for="pw">Basic認証 パスワード</label>
+<input id="pw" type="password" autocomplete="off">
+<button id="go">開く</button>
+<a id="link" href="#">（ボタンで遷移しない場合はこのリンクをタップ）</a>
+<script>
+var u = document.getElementById('u');
+var id = document.getElementById('id');
+var pw = document.getElementById('pw');
+var link = document.getElementById('link');
+try {
+  u.value = localStorage.getItem('launcher_url') || '';
+  id.value = localStorage.getItem('launcher_id') || '';
+  pw.value = localStorage.getItem('launcher_pw') || '';
+} catch (e) {}
+// ID があれば https://ID:パスワード@ホスト/... の形にする
+function buildUrl() {
+  var v = u.value.trim();
+  if (!v || !id.value) { return v; }
+  return v.replace(/^(https?:\/\/)/, '$1' + encodeURIComponent(id.value) + ':' + encodeURIComponent(pw.value) + '@');
+}
+function save() {
+  try {
+    localStorage.setItem('launcher_url', u.value.trim());
+    localStorage.setItem('launcher_id', id.value);
+    localStorage.setItem('launcher_pw', pw.value);
+  } catch (e) {}
+}
+function sync() { link.href = buildUrl() || '#'; }
+function go() {
+  var v = buildUrl();
+  if (!v) { return; }
+  save();
+  location.href = v;
+}
+[u, id, pw].forEach(function (el) { el.addEventListener('input', sync); });
+document.getElementById('go').addEventListener('click', go);
+link.addEventListener('click', save);
+sync();
+</script>
+</body></html>
